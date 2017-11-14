@@ -1,0 +1,10 @@
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\bin\Debug\ADRCVisualization.exe.config
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\bin\Debug\ADRCVisualization.exe
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\bin\Debug\ADRCVisualization.pdb
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.csprojResolveAssemblyReference.cache
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.Form1.resources
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.Properties.Resources.resources
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.csproj.GenerateResource.Cache
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.csproj.CoreCompileInputs.cache
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.exe
+C:\Users\steve\source\repos\ADRCVisualization\ADRCVisualization\obj\Debug\ADRCVisualization.pdb
