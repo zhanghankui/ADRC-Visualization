@@ -49,9 +49,12 @@ namespace ADRCVisualization.Class_Files
         {
             //samplingPeriod = DateTime.Now.Subtract(dateTime).TotalSeconds + 0.08;
 
-            //Console.WriteLine(DateTime.Now.Subtract(dateTime).TotalSeconds);
+            samplingPeriod = 0.1;
 
-            samplingPeriod = 0.5;
+            //Console.WriteLine(DateTime.Now.Subtract(dateTime).TotalSeconds);
+            
+
+            //samplingPeriod = 0.8;
 
             if (samplingPeriod > 0)
             {

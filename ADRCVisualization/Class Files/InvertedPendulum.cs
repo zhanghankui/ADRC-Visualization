@@ -12,7 +12,7 @@ namespace ADRCVisualization.Class_Files
         private double velocity = 0;
         private double theta;
         private double radius;
-        private double gravity = 9.81;
+        private double gravity = -9.81;
 
         public InvertedPendulum(double theta, double radius)
         {
@@ -26,6 +26,7 @@ namespace ADRCVisualization.Class_Files
             double arcDistance;
             double dT;
             double alpha;
+            int arcDistanceSign;
 
             dT = DateTime.Now.Subtract(date).TotalSeconds;
             if (dT != 0)
@@ -33,6 +34,32 @@ namespace ADRCVisualization.Class_Files
                 arcDistance = velocity * dT;
 
                 //Console.WriteLine(Math.Asin(Math.Abs(arcDistance) / radius));
+
+                if (Math.Abs(arcDistance / radius) > 1)
+                {
+                    arcDistanceSign = Math.Sign(arcDistance);
+                    arcDistance = Math.Abs(arcDistance);
+
+                    double arcDistanceAdder = 0;
+
+                    while (arcDistance / radius > 1)
+                    {
+                        //Console.WriteLine(arcDistance);
+
+                        if (arcDistance / radius > 1)
+                        {
+                            arcDistanceAdder += Math.Asin(1);
+                            arcDistance -= 1;
+                        }
+                        else
+                        {
+                            arcDistanceAdder += Math.Asin(arcDistance);
+                            arcDistance -= arcDistance;
+                        }
+                    }
+
+                    arcDistance = arcDistance * arcDistanceSign;
+                }
                 
                 alpha = Math.Asin(arcDistance / radius);
 

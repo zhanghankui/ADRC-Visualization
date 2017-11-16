@@ -28,25 +28,29 @@ namespace ADRCVisualization.Class_Files
             time = DateTime.Now;
         }
 
-        public double Calculate(double setpoint, double pv)
+        public double Calculate(double setpoint, double processVariable)
         {
             double POut, IOut, DOut, dt;
-
+            
             DateTime currentTime = DateTime.Now;
             dt = currentTime.Subtract(time).TotalSeconds;
-            error = setpoint - pv;
 
-            POut = kp * error;
+            if (dt > 0)
+            {
+                error = setpoint - processVariable;
 
-            integral += error * dt;
-            IOut = ki * integral;
+                POut = kp * error;
 
-            DOut = kd * ((error - previousError) / dt);
+                integral += error * dt;
+                IOut = ki * integral;
 
-            output = Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
-            
-            time = currentTime;
-            previousError = error;
+                DOut = kd * ((error - previousError) / dt);
+
+                output = Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
+
+                time = currentTime;
+                previousError = error;
+            }
 
             return output;
         }
