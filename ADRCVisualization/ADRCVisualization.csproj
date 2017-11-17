@@ -54,8 +54,12 @@
   <ItemGroup>
     <Compile Include="Class Files\AbstractMath.cs" />
     <Compile Include="Class Files\ADRC.cs" />
+    <Compile Include="Class Files\BitmapModifier.cs" />
     <Compile Include="Class Files\ExtendedStateObserver.cs" />
+    <Compile Include="Class Files\FourierBitmap.cs" />
+    <Compile Include="Class Files\FourierTransform.cs" />
     <Compile Include="Class Files\InvertedPendulum.cs" />
+    <Compile Include="Class Files\MathFunctions.cs" />
     <Compile Include="Class Files\NonlinearCombiner.cs" />
     <Compile Include="Class Files\PID.cs" />
     <Compile Include="Class Files\TrackingDifferentiator.cs" />

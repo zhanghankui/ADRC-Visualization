@@ -13,8 +13,6 @@ using ADRCVisualization.Class_Files;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
-using FFTWSharp;
 
 namespace ADRCVisualization
 {
@@ -32,16 +30,16 @@ namespace ADRCVisualization
         private ADRC adrc;
         private DateTime dateTime;
         private bool correctionState;
-        private StreamWriter adrcFileWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ADRCData.csv");
-        private StreamWriter pidFileWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\PIDData.csv");
+        private StreamWriter adrcFileWriter;
+        private StreamWriter pidFileWriter;
         private int adrcCounter = 0;
         private int pidCounter = 0;
 
-        private double SetPoint = 0;
+        private double SetPoint = 1;
         private double StartPoint = 30;
         private double PendulumLength = 2;
         private double WaitTimeForPID = 5;
-        private double RunTime = 40;
+        private double RunTime = 60;
         private double NoiseFactor = 0;
         private bool initializeFeedbackControllers = false;
 
@@ -55,7 +53,6 @@ namespace ADRCVisualization
         private double hModifier = 0.005;
 
         private double maxOutput = 1000;
-        private fftwf fftwf;
 
         List<float> ADRCOutput = new List<float>();
         List<float> PIDOutput = new List<float>();
@@ -67,12 +64,48 @@ namespace ADRCVisualization
         private System.Timers.Timer t2;
         private System.Timers.Timer t3;
 
+        private FourierBitmap PIDFourierBitmap;
+        private FourierBitmap ADRCFourierBitmap;
+
+        private float FourierTolerance = 1f;
+
+        private BackgroundWorker backgroundWorker;
+
+
         public Form1()
         {
             InitializeComponent();
 
             dateTime = DateTime.Now;
             correctionState = false;
+
+            InitializeFileWriters();
+            
+            chart3.Series[0].Points.Add(0);
+            chart4.Series[0].Points.Add(0);
+
+            chart3.ChartAreas[0].AxisY.Maximum = maxOutput;
+            chart3.ChartAreas[0].AxisY.Minimum = -maxOutput;
+
+            chart4.ChartAreas[0].AxisY.Maximum = maxOutput;
+            chart4.ChartAreas[0].AxisY.Minimum = -maxOutput;
+
+            PIDFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
+            ADRCFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
+
+
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += new DoWorkEventHandler(BackgroundWorker_CalculateFourierTransforms);
+            backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BackgroundWorker_ChangeFourierTransforms);
+
+            StartTimers();
+            StopTimers();
+        }
+
+        private void InitializeFileWriters()
+        {
+            adrcFileWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ADRCData.csv");
+            pidFileWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\PIDData.csv");
 
             adrcFileWriter.WriteLine("r,c,b,h");
             adrcFileWriter.WriteLine(r + "," + c + "," + b + "," + hModifier);
@@ -83,30 +116,6 @@ namespace ADRCVisualization
             pidFileWriter.WriteLine(kp + "," + ki + "," + kd);
 
             pidFileWriter.WriteLine();
-
-
-            chart3.Series[0].Points.Add(0);
-            chart4.Series[0].Points.Add(0);
-
-            chart3.ChartAreas[0].AxisY.Maximum = maxOutput;
-            chart3.ChartAreas[0].AxisY.Minimum = -maxOutput;
-
-            chart4.ChartAreas[0].AxisY.Maximum = maxOutput;
-            chart4.ChartAreas[0].AxisY.Minimum = -maxOutput;
-
-            StartTimers();
-        }
-
-        private async void StopTimers()
-        {
-            await Task.Delay((int)RunTime * 1000);
-            
-            this.BeginInvoke((Action)(() =>
-            {
-                t.Stop();
-                t2.Stop();
-                t3.Stop();
-            }));
         }
 
         private async void StartTimers()
@@ -120,15 +129,15 @@ namespace ADRCVisualization
                 
                 t = new System.Timers.Timer
                 {
-                    Interval = 50, //In milliseconds here
+                    Interval = 60, //In milliseconds here
                     AutoReset = true //Stops it from repeating
                 };
-                t.Elapsed += new ElapsedEventHandler(SetPictureBoxAngle);
+                t.Elapsed += new ElapsedEventHandler(SetInvertedPendulumAngle);
                 t.Start();
 
                 t2 = new System.Timers.Timer
                 {
-                    Interval = 0.1, //In milliseconds here
+                    Interval = 1, //In milliseconds here
                     AutoReset = true //Stops it from repeating
                 };
                 t2.Elapsed += new ElapsedEventHandler(ChangeAngle);
@@ -136,21 +145,39 @@ namespace ADRCVisualization
                 
                 t3 = new System.Timers.Timer
                 {
-                    Interval = 50, //In milliseconds here
+                    Interval = 150, //In milliseconds here
                     AutoReset = true //Stops it from repeating
                 };
                 t3.Elapsed += new ElapsedEventHandler(UpdateFourierTransforms);
                 t3.Start();
             }));
         }
+        private async void StopTimers()
+        {
+            await Task.Delay((int)RunTime * 1000);
 
+            this.BeginInvoke((Action)(() =>
+            {
+                t.Stop();
+                t2.Stop();
+                t3.Stop();
+            }));
+        }
+        
+        /*
+         * Why FFT?
+         * -Displays change of frequency of pendulum, slowing/speeding up
+         * -Displays noise effectively from output
+         * -Displays switching frequency of feedback controller
+         * 
+         */
         public void UpdateFourierTransforms(object sender, ElapsedEventArgs e)
         {
             if (!(DateTime.Now.Subtract(dateTime).TotalSeconds > RunTime))
             {
                 this.BeginInvoke((Action)(() =>
                 {
-                    if (PIDOutput.ToArray().Length > 20)
+                    if (PIDOutput.ToArray().Length > 1)//FourierTransform.FourierMemory / 1.25)
                     {
                         chart3.Series[0].Points.Clear();
                         chart4.Series[0].Points.Clear();
@@ -158,36 +185,19 @@ namespace ADRCVisualization
                         chart3.Series[1].Points.Clear();
                         chart4.Series[1].Points.Clear();
 
-                        //List<float> tempADRCOutput = new List<float>();
-                        //List<float> tempPIDOutput = new List<float>();
-
-                        float[] pidFFTW = CalculateFFTW(PIDOutput.ToArray());
-                        float[] adrcFFTW = CalculateFFTW(ADRCOutput.ToArray());
-
-                        float[] pidAngleFFTW = CalculateFFTW(PIDAngle.ToArray());
-                        float[] adrcAngleFFTW = CalculateFFTW(ADRCAngle.ToArray());
-
-                        foreach (float freq in pidFFTW)
+                        while (!backgroundWorker.IsBusy)
                         {
-                            chart3.Series[0].Points.Add(freq);
-                        }
+                            try
+                            {
+                                backgroundWorker.RunWorkerAsync();
+                                break;
+                            }
+                            catch(Exception ex)
+                            {
 
-                        foreach (float freq in adrcFFTW)
-                        {
-                            chart4.Series[0].Points.Add(freq);
-                        }
-
-                        foreach (float freq in pidAngleFFTW)
-                        {
-                            chart3.Series[1].Points.Add(freq);
-                        }
-
-                        foreach (float freq in adrcAngleFFTW)
-                        {
-                            chart4.Series[1].Points.Add(freq);
+                            }
                         }
                     }
-
                 }));
             }
         }
@@ -237,6 +247,14 @@ namespace ADRCVisualization
                 
                 ADRCOutput.Add((float)outputADRC);
                 PIDOutput.Add((float)outputPID);
+
+                if (ADRCAngle.ToArray().Length > FourierTransform.FourierMemory)
+                {
+                    ADRCAngle.RemoveAt(0);
+                    PIDAngle.RemoveAt(0);
+                    ADRCOutput.RemoveAt(0);
+                    PIDOutput.RemoveAt(0);
+                }
             }
 
             Random rand = new Random();
@@ -256,7 +274,7 @@ namespace ADRCVisualization
             //angleADRC = tempAngleADRC < 0 ? tempAngleADRC + 360 : tempAngleADRC;
         }
         
-        public void SetPictureBoxAngle(object sender, ElapsedEventArgs e)
+        public void SetInvertedPendulumAngle(object sender, ElapsedEventArgs e)
         {
             if (!(DateTime.Now.Subtract(dateTime).TotalSeconds > RunTime))
             {
@@ -279,84 +297,61 @@ namespace ADRCVisualization
                     chart2.Series[0].Color = Color.DarkGreen;
                     chart2.Series[1].Color = Color.Red;
 
-                    Bitmap PID = RotateImage(new Bitmap(Path.GetFullPath(@"..\..\PID.png")), (float)anglePID + 180f);
-                    Bitmap ADRC = RotateImage(new Bitmap(Path.GetFullPath(@"..\..\ADRC.png")), (float)angleADRC + 180f);
+                    Bitmap PID = BitmapModifier.RotateImage(new Bitmap(Path.GetFullPath(@"..\..\PID.png")), (float)anglePID + 180f);
+                    Bitmap ADRC = BitmapModifier.RotateImage(new Bitmap(Path.GetFullPath(@"..\..\ADRC.png")), (float)angleADRC + 180f);
 
-                    pictureBox1.Image = CombineImages(PID, ADRC);
-
-                    //pictureBox1.Refresh();
+                    pictureBox1.Image = BitmapModifier.CombineImages(PID, ADRC);
                 }));
             }
         }
 
-        public static Bitmap CombineImages(Bitmap bmp1, Bitmap bmp2)
+        private void BackgroundWorker_CalculateFourierTransforms(object sender, DoWorkEventArgs e)
         {
-            Bitmap target = new Bitmap(bmp1.Width, bmp1.Height, PixelFormat.Format32bppArgb);
-            Graphics g = Graphics.FromImage(target);
-            g.CompositingMode = CompositingMode.SourceOver; // this is the default, but just to be clear
-
-            g.DrawImage(bmp1, 0, 0);
-            g.DrawImage(bmp2, 0, 0);
-
-            return target;
-        }
-
-        public static Bitmap RotateImage(Bitmap b, float angle)
-        {
-            if (!float.IsNaN(angle))
-            {
-                Bitmap returnBitmap = new Bitmap(b.Width, b.Height);
-                Graphics g = Graphics.FromImage(returnBitmap);
-
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.TranslateTransform((float)b.Width / 2, (float)b.Height / 2);
-                g.RotateTransform(angle);
-                g.TranslateTransform(-(float)b.Width / 2, -(float)b.Height / 2);
-                g.DrawImage(b, 0, 0, b.Width, b.Height);  //My Final Solution :3
-
-                return returnBitmap;
-            }
-            else
-            {
-                return b;
-            }
-        }
-
-        public float[] CalculateFFTW(float[] data)
-        {
-
-            IntPtr fplan1, pin, pout;
-            float[] fin, fout;
-            int n;
+            BackgroundWorker worker = (BackgroundWorker)sender;
             
-            //data = FetchData();
+            float[] pidFFTW = FourierTransform.CalculateFFTW(PIDOutput.ToArray());
+            float[] adrcFFTW = FourierTransform.CalculateFFTW(ADRCOutput.ToArray());
 
-            n = data.Length;// 16000;
+            float[] pidAngleFFTW = FourierTransform.CalculateFFTW(PIDAngle.ToArray());
+            float[] adrcAngleFFTW = FourierTransform.CalculateFFTW(ADRCAngle.ToArray());
 
-            fftwf = new fftwf();
-
-            pin = fftwf.malloc(n * 8);
-            pout = fftwf.malloc(n * 8);
-            fin = new float[n];
-            fout = new float[n];
-
-            fplan1 = fftwf.dft_r2c_1d(n, pin, pout, fftw_flags.Estimate);
-
-            fin = data;//for (int i = 0; i < n * 2; i++) fin[i] = (float)Math.Sin(i * Math.PI / 180);// i % 5;
-            fout = data;//for (int i = 0; i < n * 2; i++) fout[i] = (float)Math.Sin(i * Math.PI / 180);// i % 5;
-
-            Marshal.Copy(fin, 0, pin, n);
-            Marshal.Copy(fout, 0, pout, n);
-
-            fftwf.execute(fplan1);
-
-            Marshal.Copy(pout, fout, 0, n);
+            e.Result = new float[4][] { pidFFTW, adrcFFTW, pidAngleFFTW, adrcAngleFFTW};
+        }
+        private void BackgroundWorker_ChangeFourierTransforms(object sender, RunWorkerCompletedEventArgs e)
+        {
             
-            fftwf.free(pin);
-            fftwf.free(pout);
-            fftwf.destroy_plan(fplan1);
+            foreach (float freq in ((float[][])(e.Result))[0])
+            {
+                chart3.Series[0].Points.Add(freq);
+            }
 
-            return fout;
+            foreach (float freq in ((float[][])(e.Result))[1])
+            {
+                chart4.Series[0].Points.Add(freq);
+            }
+
+            foreach (float freq in ((float[][])(e.Result))[2])
+            {
+                chart3.Series[1].Points.Add(freq);
+            }
+
+            foreach (float freq in ((float[][])(e.Result))[3])
+            {
+                chart4.Series[1].Points.Add(freq);
+            }
+
+            double pidFFTWStdDev = MathFunctions.CalculateStdDev(Array.ConvertAll(((float[][])(e.Result))[0], x => (double)x).AsEnumerable());
+            double adrcFFTWStdDev = MathFunctions.CalculateStdDev(Array.ConvertAll(((float[][])(e.Result))[1], x => (double)x).AsEnumerable());
+
+            if (pidFFTWStdDev > FourierTolerance)
+            {
+                pidPictureBox.Image = PIDFourierBitmap.Calculate2DFourierTransform(((float[][])(e.Result))[0]);
+            }
+
+            if (adrcFFTWStdDev > FourierTolerance)
+            {
+                adrcPictureBox.Image = ADRCFourierBitmap.Calculate2DFourierTransform(((float[][])(e.Result))[1]);
+            }
         }
     }
 }

@@ -55,11 +55,15 @@
             this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chart3 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chart4 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.pidPictureBox = new System.Windows.Forms.PictureBox();
+            this.adrcPictureBox = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pidPictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.adrcPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -198,20 +202,42 @@
             this.chart4.TabIndex = 7;
             this.chart4.Text = "chart4";
             // 
+            // pidPictureBox
+            // 
+            this.pidPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pidPictureBox.Location = new System.Drawing.Point(12, 559);
+            this.pidPictureBox.Name = "pidPictureBox";
+            this.pidPictureBox.Size = new System.Drawing.Size(710, 350);
+            this.pidPictureBox.TabIndex = 8;
+            this.pidPictureBox.TabStop = false;
+            // 
+            // adrcPictureBox
+            // 
+            this.adrcPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.adrcPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.adrcPictureBox.Location = new System.Drawing.Point(735, 559);
+            this.adrcPictureBox.Name = "adrcPictureBox";
+            this.adrcPictureBox.Size = new System.Drawing.Size(710, 350);
+            this.adrcPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.adrcPictureBox.TabIndex = 9;
+            this.adrcPictureBox.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(1457, 563);
+            this.ClientSize = new System.Drawing.Size(1457, 918);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.adrcPictureBox);
+            this.Controls.Add(this.pidPictureBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.chart4);
             this.Controls.Add(this.chart3);
             this.Controls.Add(this.chart2);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
@@ -222,6 +248,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pidPictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.adrcPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,6 +265,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart3;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart4;
+        private System.Windows.Forms.PictureBox pidPictureBox;
+        private System.Windows.Forms.PictureBox adrcPictureBox;
     }
 }
 
