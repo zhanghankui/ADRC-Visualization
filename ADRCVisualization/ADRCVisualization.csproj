@@ -52,17 +52,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class Files\AbstractMath.cs" />
-    <Compile Include="Class Files\ADRC.cs" />
+    <Compile Include="Class Files\ADRC\AbstractMath.cs" />
+    <Compile Include="Class Files\ADRC\ADRC_TD.cs" />
+    <Compile Include="Class Files\ADRC\ADRC_PD.cs" />
     <Compile Include="Class Files\BitmapModifier.cs" />
-    <Compile Include="Class Files\ExtendedStateObserver.cs" />
-    <Compile Include="Class Files\FourierBitmap.cs" />
-    <Compile Include="Class Files\FourierTransform.cs" />
+    <Compile Include="Class Files\ADRC\ExtendedStateObserver.cs" />
+    <Compile Include="Class Files\FourierTransforms\FourierBitmap.cs" />
+    <Compile Include="Class Files\FourierTransforms\FourierTransform.cs" />
+    <Compile Include="Class Files\Solvers\GeneticAlgorithmSolver.cs" />
     <Compile Include="Class Files\InvertedPendulum.cs" />
     <Compile Include="Class Files\MathFunctions.cs" />
-    <Compile Include="Class Files\NonlinearCombiner.cs" />
+    <Compile Include="Class Files\Solvers\NeuralNetworkSolver.cs" />
+    <Compile Include="Class Files\ADRC\NonlinearCombiner.cs" />
     <Compile Include="Class Files\PID.cs" />
-    <Compile Include="Class Files\TrackingDifferentiator.cs" />
+    <Compile Include="Class Files\Solvers\SimulatedAnnealingSolver.cs" />
+    <Compile Include="Class Files\ADRC\TrackingDifferentiator.cs" />
+    <Compile Include="Class Files\Solvers\Solver.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

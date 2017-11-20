@@ -82,24 +82,9 @@ namespace ADRCVisualization.Class_Files
                 bmpColumn.SetPixel(0, i, ReturnColorFromGradient(Adjusted[i]));
             }
 
-            bmp = MergeBitmaps(bmp, bmpColumn);
+            bmp = BitmapModifier.MergeBitmaps(bmp, bmpColumn);
 
             return new Bitmap(bmp, new Size(x, y));
-        }
-
-        private Bitmap MergeBitmaps(Bitmap original, Bitmap adding)
-        {
-            Bitmap bitmap = new Bitmap(original.Width + adding.Width, Math.Max(original.Height, adding.Height));
-            using (Graphics g = Graphics.FromImage(bitmap))
-            {
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                g.DrawImage(original, 0, 0);
-                g.DrawImage(adding, original.Width, 0);
-            }
-
-            return bitmap;
         }
         
         private Color ReturnColorFromGradient(float amplitude)

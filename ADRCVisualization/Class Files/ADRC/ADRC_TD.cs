@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ADRCVisualization.Class_Files
 {
-    class ADRC//ActiveDisturbanceRejectionControl
+    class ADRC_TD//ActiveDisturbanceRejectionControl
     {
         private TrackingDifferentiator TrackingDifferentiator;
         private ExtendedStateObserver ExtendedStateObserver;
@@ -24,7 +24,7 @@ namespace ADRCVisualization.Class_Files
 
         private double output;
 
-        public ADRC(double amplificationCoefficient, double dampingCoefficient, double plantCoefficient, double precisionModifier, double maxOutput)
+        public ADRC_TD(double amplificationCoefficient, double dampingCoefficient, double plantCoefficient, double precisionModifier, double maxOutput)
         {
             this.amplificationCoefficient = amplificationCoefficient;
             this.dampingCoefficient = dampingCoefficient;
@@ -61,7 +61,7 @@ namespace ADRCVisualization.Class_Files
                 precisionCoefficient = samplingPeriod * precisionModifier;
 
                 Tuple<double, double> td = TrackingDifferentiator.Track(setpoint, samplingPeriod);//double input
-                Tuple<double, double, double> eso = ExtendedStateObserver.ObserveState(samplingPeriod, td, output, plantCoefficient, processVariable);//double u, double y, double b0
+                Tuple<double, double, double> eso = ExtendedStateObserver.ObserveState(samplingPeriod, output, plantCoefficient, processVariable);//double u, double y, double b0
 
                 output = NonlinearCombiner.Combine(td, plantCoefficient, eso, precisionCoefficient);
 

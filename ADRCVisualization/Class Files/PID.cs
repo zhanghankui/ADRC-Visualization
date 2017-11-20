@@ -54,7 +54,30 @@ namespace ADRCVisualization.Class_Files
 
             return output;
         }
-        
+
+        public double Calculate(double setpoint, double processVariable, double samplingPeriod)
+        {
+            double POut, IOut, DOut;
+
+            if (samplingPeriod > 0)
+            {
+                error = setpoint - processVariable;
+
+                POut = kp * error;
+
+                integral += error * samplingPeriod;
+                IOut = ki * integral;
+
+                DOut = kd * ((error - previousError) / samplingPeriod);
+
+                output = Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
+                
+                previousError = error;
+            }
+
+            return output;
+        }
+
         private double Constrain(double value, double minimum, double maximum)
         {
             if (value > maximum)

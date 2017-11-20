@@ -27,7 +27,7 @@ namespace ADRCVisualization
         private InvertedPendulum invertedPendulumPID;
         private InvertedPendulum invertedPendulumADRC;
         private PID pid;
-        private ADRC adrc;
+        private ADRC_PD adrc;
         private DateTime dateTime;
         private bool correctionState;
         private StreamWriter adrcFileWriter;
@@ -35,22 +35,22 @@ namespace ADRCVisualization
         private int adrcCounter = 0;
         private int pidCounter = 0;
 
-        private double SetPoint = 1;
+        private double SetPoint = 0;
         private double StartPoint = 30;
-        private double PendulumLength = 2;
+        private double PendulumLength = 4;
         private double WaitTimeForPID = 5;
-        private double RunTime = 60;
+        private double RunTime = 20;
         private double NoiseFactor = 0;
         private bool initializeFeedbackControllers = false;
 
         private double kp = 0.36;
         private double ki = 0;
-        private double kd = 0.18;
+        private double kd = 0.2485;//0.18
 
-        private double r = 80;
-        private double c = 500;
-        private double b = 0.5;
-        private double hModifier = 0.005;
+        private double r = 2000;//80
+        private double c = 750;//500
+        private double b = 2.875;//0.5   smoothing
+        private double hModifier = 0.0009;//0.005  overshoot
 
         private double maxOutput = 1000;
 
@@ -60,7 +60,7 @@ namespace ADRCVisualization
         List<float> ADRCAngle = new List<float>();
         List<float> PIDAngle = new List<float>();
 
-        private System.Timers.Timer t;
+        private System.Timers.Timer t1;
         private System.Timers.Timer t2;
         private System.Timers.Timer t3;
 
@@ -92,8 +92,7 @@ namespace ADRCVisualization
 
             PIDFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
             ADRCFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
-
-
+            
             backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += new DoWorkEventHandler(BackgroundWorker_CalculateFourierTransforms);
             backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BackgroundWorker_ChangeFourierTransforms);
@@ -127,13 +126,13 @@ namespace ADRCVisualization
                 invertedPendulumPID = new InvertedPendulum(StartPoint, PendulumLength);//start angle, arm length
                 invertedPendulumADRC = new InvertedPendulum(StartPoint, PendulumLength);//start angle, arm length
                 
-                t = new System.Timers.Timer
+                t1 = new System.Timers.Timer
                 {
                     Interval = 60, //In milliseconds here
                     AutoReset = true //Stops it from repeating
                 };
-                t.Elapsed += new ElapsedEventHandler(SetInvertedPendulumAngle);
-                t.Start();
+                t1.Elapsed += new ElapsedEventHandler(SetInvertedPendulumAngle);
+                t1.Start();
 
                 t2 = new System.Timers.Timer
                 {
@@ -152,15 +151,18 @@ namespace ADRCVisualization
                 t3.Start();
             }));
         }
+
         private async void StopTimers()
         {
             await Task.Delay((int)RunTime * 1000);
 
             this.BeginInvoke((Action)(() =>
             {
-                t.Stop();
+                t1.Stop();
                 t2.Stop();
                 t3.Stop();
+
+                label1.Text = "Calculation Stopped";
             }));
         }
         
@@ -194,7 +196,7 @@ namespace ADRCVisualization
                             }
                             catch(Exception ex)
                             {
-
+                                Console.WriteLine(ex.ToString());
                             }
                         }
                     }
@@ -209,8 +211,8 @@ namespace ADRCVisualization
                 if (!initializeFeedbackControllers)
                 {
                     pid = new PID(kp, ki, kd, maxOutput);
-                    adrc = new ADRC(r, c, b, hModifier, maxOutput);
-
+                    adrc = new ADRC_PD(r, c, b, hModifier, kp, kd, maxOutput);
+                    /*
                     if (angleADRC > 180)
                     {
                         ADRCCalculationSetpoint = SetPoint + 360;
@@ -219,7 +221,7 @@ namespace ADRCVisualization
                     {
                         ADRCCalculationSetpoint = SetPoint;
                     }
-
+                    
                     if (anglePID > 180)
                     {
                         PIDCalculationSetpoint = SetPoint + 360;
@@ -228,7 +230,10 @@ namespace ADRCVisualization
                     {
                         PIDCalculationSetpoint = SetPoint;
                     }
-                    
+                    */
+
+                    ADRCCalculationSetpoint = SetPoint;
+                    PIDCalculationSetpoint = SetPoint;
                     initializeFeedbackControllers = true;
                 }
 
@@ -317,6 +322,7 @@ namespace ADRCVisualization
 
             e.Result = new float[4][] { pidFFTW, adrcFFTW, pidAngleFFTW, adrcAngleFFTW};
         }
+
         private void BackgroundWorker_ChangeFourierTransforms(object sender, RunWorkerCompletedEventArgs e)
         {
             
@@ -342,7 +348,7 @@ namespace ADRCVisualization
 
             double pidFFTWStdDev = MathFunctions.CalculateStdDev(Array.ConvertAll(((float[][])(e.Result))[0], x => (double)x).AsEnumerable());
             double adrcFFTWStdDev = MathFunctions.CalculateStdDev(Array.ConvertAll(((float[][])(e.Result))[1], x => (double)x).AsEnumerable());
-
+            
             if (pidFFTWStdDev > FourierTolerance)
             {
                 pidPictureBox.Image = PIDFourierBitmap.Calculate2DFourierTransform(((float[][])(e.Result))[0]);

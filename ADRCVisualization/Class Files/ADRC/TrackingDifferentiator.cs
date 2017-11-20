@@ -27,7 +27,7 @@ namespace ADRCVisualization.Class_Files
             v2(k + 1) = v2(k) + h ∗ fh; // derivative of v1
 
         
-    */
+        */
         private double v1;
         private double v2;
         private double amplificationCoefficient;//r

@@ -53,7 +53,7 @@ namespace ADRCVisualization.Class_Files
             this.linear = linear;
         }
 
-        public Tuple<double, double, double> ObserveState(double samplingPeriod, Tuple<double, double> td, double u, double b0, double processVariable)
+        public Tuple<double, double, double> ObserveState(double samplingPeriod, double u, double b0, double processVariable)
         {
             if (linear)
             {
