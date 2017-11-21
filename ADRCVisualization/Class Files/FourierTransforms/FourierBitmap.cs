@@ -29,6 +29,11 @@ namespace ADRCVisualization.Class_Files
             
             bmp = new Bitmap(1, y);
         }
+
+        public void SetMaxOutput(float maxOutput)
+        {
+            this.maxOutput = maxOutput;
+        }
         
         /// <summary>
         /// Uses the calculated fourier transform to produce a 3d form representing the color intensity as the amplitude, the 
@@ -39,52 +44,41 @@ namespace ADRCVisualization.Class_Files
         public Bitmap Calculate2DFourierTransform(float[] data)
         {
             int[] Adjusted = new int[y];
+            
+            float value = 0;
 
-            if (y / data.Length > 1)
+            //Tested: Less data than pixels
+            for (int i = 0; i < Adjusted.Length - (Adjusted.Length / data.Length); i += Adjusted.Length / data.Length)// 500 / 100 = 5
             {
-                float value = 0;
+                float incrementingAmount = 0;
 
-                //Tested: Less data than pixels
-                for (int i = 0; i < Adjusted.Length - (Adjusted.Length / data.Length); i += Adjusted.Length / data.Length)// 500 / 100 = 5
+                for (int k = 0; k < Adjusted.Length / data.Length; k++)
                 {
-                    float incrementingAmount = 0;
+                    int tempIndexData = (i / (Adjusted.Length / data.Length));
 
-                    for (int k = 0; k < Adjusted.Length / data.Length; k++)
+                    if (tempIndexData >= data.Length)
                     {
-                        int tempIndexData = (i / (Adjusted.Length / data.Length));
-
-                        if (tempIndexData >= data.Length)
-                        {
-                            //Console.WriteLine(tempVar + " " + data.Length);
-                            break;
-                        }
-                        
-                        int tempIndexAdjusted = i + k;
-
-                        if (tempIndexAdjusted >= Adjusted.Length)
-                        {
-                            //Console.WriteLine(tempIndex + " " + Adjusted.Length);
-                            break;
-                        }
-
-                        //Linear interpolation between data points, smooths out image
-                        if (tempIndexData < data.Length - 1)
-                        {
-                            incrementingAmount = (data[tempIndexData + 1] - data[tempIndexData]) / (Adjusted.Length / data.Length);
-                        }
-
-                        value += incrementingAmount;
-
-                        Adjusted[tempIndexAdjusted] = (int)value;// (int)data[tempIndexData];
+                        //Console.WriteLine(tempVar + " " + data.Length);
+                        break;
                     }
-                }
-            }
-            else
-            {
-                //Not Tested: More data than pixels
-                for (int i = 0; i < y; i++)
-                {
-                    Adjusted[i] = (int)data[(int)(i * (data.Length / y))];
+                        
+                    int tempIndexAdjusted = i + k;
+
+                    if (tempIndexAdjusted >= Adjusted.Length)
+                    {
+                        //Console.WriteLine(tempIndex + " " + Adjusted.Length);
+                        break;
+                    }
+
+                    //Linear interpolation between data points, smooths out image
+                    if (tempIndexData < data.Length - 1)
+                    {
+                        incrementingAmount = (data[tempIndexData + 1] - data[tempIndexData]) / (Adjusted.Length / data.Length);
+                    }
+
+                    value += incrementingAmount;
+
+                    Adjusted[tempIndexAdjusted] = (int)value;// (int)data[tempIndexData];
                 }
             }
 

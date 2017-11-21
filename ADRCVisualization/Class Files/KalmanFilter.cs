@@ -10,14 +10,17 @@ namespace ADRCVisualization.Class_Files
     {
         private double gain;
         private double filteredValue;
+        private double memory;
+        private List<double> valueList = new List<double>();
 
         /// <summary>
         /// Implementation of a kalman filter. Commonly used to smooth output of noisy functions
         /// </summary>
         /// <param name="gain">Kalman Gain</param>
-        public KalmanFilter(double gain)
+        public KalmanFilter(double gain, int memory)
         {
             this.gain = gain;
+            this.memory = memory;
         }
         
         /// <summary>
@@ -25,14 +28,16 @@ namespace ADRCVisualization.Class_Files
         /// </summary>
         /// <param name="values">Allows input of a single or multiple input values to be added to the filter</param>
         /// <returns>Returns filtered value</returns>
-        public double Filter(params double[] values)
+        public double Filter(double input)
         {
             int i = 0;
             double sum = 0;
             double avg;
             double gainInverse = (1 - gain);
 
-            foreach (double value in values)
+            valueList.Add(input);
+
+            foreach (double value in valueList)
             {
                 sum += value;
                 i++;
@@ -42,6 +47,16 @@ namespace ADRCVisualization.Class_Files
 
             filteredValue = (gain * filteredValue) + (gainInverse * avg);
 
+            if (valueList.ToArray().Length > memory)
+            {
+                valueList.RemoveAt(0);
+            }
+
+            return filteredValue;
+        }
+
+        public double GetFilteredValue()
+        {
             return filteredValue;
         }
     }

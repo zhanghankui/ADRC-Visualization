@@ -10,7 +10,7 @@ namespace ADRCVisualization.Class_Files
 {
     static class FourierTransform
     {
-        public static double FourierMemory { get; } = 200;
+        public static double FourierMemory { get; } = 100;
         private static fftwf fftwf;
 
         /// <summary>

@@ -25,15 +25,15 @@ namespace ADRCVisualization
         //Inverted Pendulum
         private double SetPoint = 0;
         private double StartPoint = 30;
-        private double PendulumLength = 96;
-        private double PendulumMass = 24;
-        private double WaitTimeForPID = 5;
-        private double RunTime = 20;
+        private double PendulumLength = 4;
+        private double PendulumMass = 2;
         private double NoiseFactor = 0;
         
         //FeedbackControllers
         private double maxOutput = 1000;
         private bool initializeFeedbackControllers = false;
+        private double WaitTimeForCalculation = 5;
+        private double RunTime = 20;
 
         //Proportional Integral Derivative Parameters
         private List<float> PIDOutput = new List<float>();
@@ -77,29 +77,19 @@ namespace ADRCVisualization
         public Visualizer()
         {
             InitializeComponent();
-
+            
             dateTime = DateTime.Now;
             correctionState = false;
 
             InitializeFileWriters();
-            
-            chart1.ChartAreas[0].AxisY.Maximum = 360;
-            chart1.ChartAreas[0].AxisY.Minimum = -60;
 
-            chart3.Series[0].Points.Add(0);
-            chart4.Series[0].Points.Add(0);
-
-            chart3.ChartAreas[0].AxisY.Maximum = maxOutput;
-            chart3.ChartAreas[0].AxisY.Minimum = -maxOutput;
-
-            chart4.ChartAreas[0].AxisY.Maximum = maxOutput;
-            chart4.ChartAreas[0].AxisY.Minimum = -maxOutput;
+            InitializeCharts();
 
             PIDFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
             ADRCFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
 
-            pidMaxValue = new KalmanFilter(0.001);
-            adrcMaxValue = new KalmanFilter(0.001);
+            pidMaxValue = new KalmanFilter(0.001, 20);
+            adrcMaxValue = new KalmanFilter(0.001, 20);
 
             backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += new DoWorkEventHandler(BackgroundWorker_CalculateFourierTransforms);
@@ -126,6 +116,21 @@ namespace ADRCVisualization
             pidFileWriter.WriteLine(kp + "," + ki + "," + kd);
 
             pidFileWriter.WriteLine();
+        }
+
+        private void InitializeCharts()
+        {
+            chart1.ChartAreas[0].AxisY.Maximum = 360;
+            chart1.ChartAreas[0].AxisY.Minimum = -60;
+
+            chart3.Series[0].Points.Add(0);
+            chart4.Series[0].Points.Add(0);
+
+            chart3.ChartAreas[0].AxisY.Maximum = maxOutput;
+            chart3.ChartAreas[0].AxisY.Minimum = -maxOutput;
+
+            chart4.ChartAreas[0].AxisY.Maximum = maxOutput;
+            chart4.ChartAreas[0].AxisY.Minimum = -maxOutput;
         }
 
         /// <summary>
@@ -231,7 +236,7 @@ namespace ADRCVisualization
         /// <param name="e"></param>
         public void ChangeAngle(object sender, ElapsedEventArgs e)
         {
-            if (DateTime.Now.Subtract(dateTime).TotalSeconds > WaitTimeForPID)
+            if (DateTime.Now.Subtract(dateTime).TotalSeconds > WaitTimeForCalculation)
             {
                 if (!initializeFeedbackControllers)
                 {
@@ -380,13 +385,22 @@ namespace ADRCVisualization
             
             if (pidFFTWStdDev > FourierTolerance)
             {
+                PIDFourierBitmap.SetMaxOutput((float)pidMaxValue.GetFilteredValue());
                 pidPictureBox.Image = PIDFourierBitmap.Calculate2DFourierTransform(((float[][])(e.Result))[0]);
             }
 
             if (adrcFFTWStdDev > FourierTolerance)
             {
+                ADRCFourierBitmap.SetMaxOutput((float)adrcMaxValue.GetFilteredValue());
                 adrcPictureBox.Image = ADRCFourierBitmap.Calculate2DFourierTransform(((float[][])(e.Result))[1]);
             }
+        }
+
+        private void Visualizer_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            t1.Stop();
+            t2.Stop();
+            t3.Stop();
         }
     }
 }

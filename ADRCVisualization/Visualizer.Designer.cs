@@ -255,7 +255,7 @@
             this.adrcScale.TabIndex = 11;
             this.adrcScale.Text = "ADRC Scale:";
             // 
-            // Form1
+            // Visualizer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -275,9 +275,10 @@
             this.Controls.Add(this.chart2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "Visualizer";
             this.ShowIcon = false;
             this.Text = "PID and ADRC Analyser";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Visualizer_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
