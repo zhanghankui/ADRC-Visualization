@@ -18,6 +18,13 @@ namespace ADRCVisualization.Class_Files
         private double output;
         private DateTime time;
 
+        /// <summary>
+        /// Initializes the PID.
+        /// </summary>
+        /// <param name="kp">Proportional gain</param>
+        /// <param name="ki">Integral gain</param>
+        /// <param name="kd">Derivative gain</param>
+        /// <param name="maxOutput">Maximum output for constraint</param>
         public PID(double kp, double ki, double kd, double maxOutput)
         {
             this.kp = kp;
@@ -28,6 +35,12 @@ namespace ADRCVisualization.Class_Files
             time = DateTime.Now;
         }
 
+        /// <summary>
+        /// Calculates the setpoint with an automatically set sampling period.
+        /// </summary>
+        /// <param name="setpoint">Target</param>
+        /// <param name="processVariable">Actual</param>
+        /// <returns>Returns output of PID</returns>
         public double Calculate(double setpoint, double processVariable)
         {
             double POut, IOut, DOut, dt;
@@ -46,7 +59,7 @@ namespace ADRCVisualization.Class_Files
 
                 DOut = kd * ((error - previousError) / dt);
 
-                output = Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
+                output = MathFunctions.Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
 
                 time = currentTime;
                 previousError = error;
@@ -55,6 +68,13 @@ namespace ADRCVisualization.Class_Files
             return output;
         }
 
+        /// <summary>
+        /// Calculates the setpoint with a custom sampling period.
+        /// </summary>
+        /// <param name="setpoint">Target</param>
+        /// <param name="processVariable">Actual</param>
+        /// <param name="samplingPeriod">Period between calculations</param>
+        /// <returns>Returns output of PID</returns>
         public double Calculate(double setpoint, double processVariable, double samplingPeriod)
         {
             double POut, IOut, DOut;
@@ -70,26 +90,12 @@ namespace ADRCVisualization.Class_Files
 
                 DOut = kd * ((error - previousError) / samplingPeriod);
 
-                output = Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
+                output = MathFunctions.Constrain(POut + IOut + DOut, -maxOutput, maxOutput);
                 
                 previousError = error;
             }
 
             return output;
-        }
-
-        private double Constrain(double value, double minimum, double maximum)
-        {
-            if (value > maximum)
-            {
-                value = maximum;
-            }
-            else if (value < minimum)
-            {
-                value = minimum;
-            }
-
-            return value;
         }
     }
 }

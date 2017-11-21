@@ -13,6 +13,12 @@ namespace ADRCVisualization.Class_Files
         public static double FourierMemory { get; } = 200;
         private static fftwf fftwf;
 
+        /// <summary>
+        /// Calculates the fourier transform using a wrapper of the 
+        /// Fastest Fourier Transform in the West written in objective C.
+        /// </summary>
+        /// <param name="data">The range of data to be calculated in the fourier transform.</param>
+        /// <returns>Returns the non-windowed output of the complex numbers in the FT</returns>
         public static float[] CalculateFFTW(float[] data)
         {
             IntPtr fplan1, pin, pout;

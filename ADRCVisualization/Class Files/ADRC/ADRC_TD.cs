@@ -24,6 +24,14 @@ namespace ADRCVisualization.Class_Files
 
         private double output;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="amplificationCoefficient"></param>
+        /// <param name="dampingCoefficient"></param>
+        /// <param name="plantCoefficient"></param>
+        /// <param name="precisionModifier"></param>
+        /// <param name="maxOutput"></param>
         public ADRC_TD(double amplificationCoefficient, double dampingCoefficient, double plantCoefficient, double precisionModifier, double maxOutput)
         {
             this.amplificationCoefficient = amplificationCoefficient;
@@ -40,22 +48,17 @@ namespace ADRCVisualization.Class_Files
         }
 
         /// <summary>
-        /// 
+        /// Calculates the output given the target value and actual value.
         /// </summary>
-        /// <param name="setpoint"></param>
-        /// <param name="pv"></param>
+        /// <param name="setpoint">Target</param>
+        /// <param name="processVariable">Actual</param>
         /// <returns></returns>
         public double Calculate(double setpoint, double processVariable)
         {
             //samplingPeriod = DateTime.Now.Subtract(dateTime).TotalSeconds + 0.08;
 
             samplingPeriod = 0.1;
-
-            //Console.WriteLine(DateTime.Now.Subtract(dateTime).TotalSeconds);
             
-
-            //samplingPeriod = 0.8;
-
             if (samplingPeriod > 0)
             {
                 precisionCoefficient = samplingPeriod * precisionModifier;
@@ -65,26 +68,10 @@ namespace ADRCVisualization.Class_Files
 
                 output = NonlinearCombiner.Combine(td, plantCoefficient, eso, precisionCoefficient);
 
-                //Console.WriteLine(output);
-
                 dateTime = DateTime.Now;
             }
 
-            return Constrain(output, -maxOutput, maxOutput);
-        }
-        
-        private double Constrain(double value, double minimum, double maximum)
-        {
-            if (value > maximum)
-            {
-                value = maximum;
-            }
-            else if (value < minimum)
-            {
-                value = minimum;
-            }
-
-            return value;
+            return MathFunctions.Constrain(output, -maxOutput, maxOutput);
         }
     }
 }

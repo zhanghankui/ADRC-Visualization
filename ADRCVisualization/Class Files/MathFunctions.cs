@@ -8,7 +8,13 @@ namespace ADRCVisualization.Class_Files
 {
     static class MathFunctions
     {
-        //https://stackoverflow.com/a/3141731
+        /// <summary>
+        /// Source: https://stackoverflow.com/a/3141731
+        /// 
+        /// Calculates the standard deviation of an enumerable list of doubles. 
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public static double CalculateStdDev(IEnumerable<double> values)
         {
             double ret = 0;
@@ -22,6 +28,27 @@ namespace ADRCVisualization.Class_Files
                 ret = Math.Sqrt((sum) / (values.Count() - 1));
             }
             return ret;
+        }
+
+        /// <summary>
+        /// Constrains the output of the input value to a maximum and minimum value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static double Constrain(double value, double minimum, double maximum)
+        {
+            if (value > maximum)
+            {
+                value = maximum;
+            }
+            else if (value < minimum)
+            {
+                value = minimum;
+            }
+
+            return value;
         }
     }
 }

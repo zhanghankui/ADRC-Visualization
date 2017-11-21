@@ -15,6 +15,12 @@ namespace ADRCVisualization.Class_Files
         private double gravity = -9.81;
         private double mass;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="theta">Start point of calculation</param>
+        /// <param name="radius">Length of pendulum arm</param>
+        /// <param name="mass">Mass at the end of the pendulum arm</param>
         public InvertedPendulum(double theta, double radius, double mass)
         {
             date = DateTime.Now;
@@ -23,7 +29,12 @@ namespace ADRCVisualization.Class_Files
             this.mass = mass;
         }
 
-        public double Step(double force)//horizontal force
+        /// <summary>
+        /// Calculates one timestep of the inverse pendulum and allows an input force to be applied to its point of rotation.
+        /// </summary>
+        /// <param name="force">Force applied to point of rotation</param>
+        /// <returns>Returns current angle of pendulum</returns>
+        public double Step(double force)
         {
             double arcDistance;
             double dT;
@@ -34,8 +45,6 @@ namespace ADRCVisualization.Class_Files
             if (dT != 0)
             {
                 arcDistance = velocity * dT;
-
-                //Console.WriteLine(Math.Asin(Math.Abs(arcDistance) / radius));
 
                 if (Math.Abs(arcDistance / radius) > 1)
                 {
@@ -72,9 +81,6 @@ namespace ADRCVisualization.Class_Files
                 velocity *= 0.9985;//resistance
 
                 theta -= alpha;
-
-                //Console.WriteLine(force + " " + velocity + " " + arcDistance);
-                //Console.WriteLine(theta + " " + radius + " " + dT + " " + arcDistance + " " + alpha + " " + velocity);
             }
 
 

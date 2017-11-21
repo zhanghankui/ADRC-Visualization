@@ -22,9 +22,18 @@ namespace ADRCVisualization.Class_Files
         private double precisionModifier;
         private double maxOutput;
         private double previousPD;
-
         private double output;
 
+        /// <summary>
+        /// ADRC implementation utilizing a PD controller in place of a tracking differentiator.
+        /// </summary>
+        /// <param name="amplificationCoefficient">R</param>
+        /// <param name="dampingCoefficient">C</param>
+        /// <param name="plantCoefficient">B</param>
+        /// <param name="precisionModifier">H0</param>
+        /// <param name="kp">P Gain</param>
+        /// <param name="kd">D Gain</param>
+        /// <param name="maxOutput">Constrained maximum output</param>
         public ADRC_PD(double amplificationCoefficient, double dampingCoefficient, double plantCoefficient, double precisionModifier, double kp, double kd, double maxOutput)
         {
             this.amplificationCoefficient = amplificationCoefficient;
@@ -41,10 +50,10 @@ namespace ADRCVisualization.Class_Files
         }
 
         /// <summary>
-        /// 
+        /// Calculates the output given the target value and actual value.
         /// </summary>
-        /// <param name="setpoint"></param>
-        /// <param name="pv"></param>
+        /// <param name="setpoint">Target</param>
+        /// <param name="processVariable">Actual</param>
         /// <returns></returns>
         public double Calculate(double setpoint, double processVariable)
         {
@@ -56,30 +65,16 @@ namespace ADRCVisualization.Class_Files
                 
                 double pdValue = pid.Calculate(setpoint, processVariable, samplingPeriod);
 
-                Tuple<double, double> test = new Tuple<double, double>(pdValue, previousPD);
+                Tuple<double, double> pd = new Tuple<double, double>(pdValue, previousPD);
                 Tuple<double, double, double> eso = ExtendedStateObserver.ObserveState(samplingPeriod, output, plantCoefficient, processVariable);//double u, double y, double b0
 
-                output = NonlinearCombiner.Combine(test, plantCoefficient, eso, precisionCoefficient);
+                output = NonlinearCombiner.Combine(pd, plantCoefficient, eso, precisionCoefficient);
 
                 previousPD = pdValue;
                 dateTime = DateTime.Now;
             }
 
-            return Constrain(output, -maxOutput, maxOutput);
-        }
-
-        private double Constrain(double value, double minimum, double maximum)
-        {
-            if (value > maximum)
-            {
-                value = maximum;
-            }
-            else if (value < minimum)
-            {
-                value = minimum;
-            }
-
-            return value;
+            return MathFunctions.Constrain(output, -maxOutput, maxOutput);
         }
     }
 }

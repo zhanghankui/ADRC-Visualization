@@ -53,6 +53,14 @@ namespace ADRCVisualization.Class_Files
             this.linear = linear;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="samplingPeriod"></param>
+        /// <param name="u"></param>
+        /// <param name="b0"></param>
+        /// <param name="processVariable"></param>
+        /// <returns></returns>
         public Tuple<double, double, double> ObserveState(double samplingPeriod, double u, double b0, double processVariable)
         {
             if (linear)
@@ -91,6 +99,13 @@ namespace ADRCVisualization.Class_Files
             return new Tuple<double, double, double>(z1, z2, z3);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eta"></param>
+        /// <param name="alpha"></param>
+        /// <param name="delta"></param>
+        /// <returns></returns>
         private double NonLinearFunction(double eta, double alpha, double delta)//fal
         {
             //e / (δ ^ α − 1),                         | e | <= δ

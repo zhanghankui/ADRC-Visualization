@@ -11,6 +11,12 @@ namespace ADRCVisualization.Class_Files
 {
     static class BitmapModifier
     {
+        /// <summary>
+        /// Joins two bitmap images, right beside each other
+        /// </summary>
+        /// <param name="bmp1"></param>
+        /// <param name="bmp2"></param>
+        /// <returns></returns>
         public static Bitmap CombineImages(Bitmap bmp1, Bitmap bmp2)
         {
             Bitmap target = new Bitmap(bmp1.Width, bmp1.Height, PixelFormat.Format32bppArgb);
@@ -23,6 +29,12 @@ namespace ADRCVisualization.Class_Files
             return target;
         }
 
+        /// <summary>
+        /// Rotates an image to a specific angle
+        /// </summary>
+        /// <param name="b">Bitmap image</param>
+        /// <param name="angle">Target angle</param>
+        /// <returns></returns>
         public static Bitmap RotateImage(Bitmap b, float angle)
         {
             if (!float.IsNaN(angle))
@@ -44,6 +56,12 @@ namespace ADRCVisualization.Class_Files
             }
         }
         
+        /// <summary>
+        /// Adds two bitmap images overtop one another. Only works well with transparent image.
+        /// </summary>
+        /// <param name="original">Image to be added to.</param>
+        /// <param name="adding">Must be at least partially transparent.</param>
+        /// <returns></returns>
         public static Bitmap MergeBitmaps(Bitmap original, Bitmap adding)
         {
             Bitmap bitmap = new Bitmap(original.Width + adding.Width, Math.Max(original.Height, adding.Height));

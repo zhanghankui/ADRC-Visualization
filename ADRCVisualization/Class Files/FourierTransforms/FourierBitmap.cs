@@ -14,6 +14,13 @@ namespace ADRCVisualization.Class_Files
         private int x;
         private int y;
 
+        /// <summary>
+        /// Produces an image with color intensity as the amplitude, the y axis as 
+        /// the range of frequencies, and the x axis as the individual timesteps.
+        /// </summary>
+        /// <param name="x">X Size</param>
+        /// <param name="y">Y Size</param>
+        /// <param name="maxOutput">Maximum output</param>
         public FourierBitmap(int x, int y, float maxOutput)
         {
             this.x = x;
@@ -23,6 +30,12 @@ namespace ADRCVisualization.Class_Files
             bmp = new Bitmap(1, y);
         }
         
+        /// <summary>
+        /// Uses the calculated fourier transform to produce a 3d form representing the color intensity as the amplitude, the 
+        /// y axis as the range of frequencies, and the x axis as the individual timesteps.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public Bitmap Calculate2DFourierTransform(float[] data)
         {
             int[] Adjusted = new int[y];
@@ -87,6 +100,11 @@ namespace ADRCVisualization.Class_Files
             return new Bitmap(bmp, new Size(x, y));
         }
         
+        /// <summary>
+        /// Produces a color from an amplitude
+        /// </summary>
+        /// <param name="amplitude"></param>
+        /// <returns></returns>
         private Color ReturnColorFromGradient(float amplitude)
         {
             //zero is no energy, transparent
@@ -147,6 +165,15 @@ namespace ADRCVisualization.Class_Files
             }
         }
         
+        /// <summary>
+        /// Scales an input range with a minimum and maximum to a new minimum and maximum.
+        /// </summary>
+        /// <param name="datapoint"></param>
+        /// <param name="OldMax"></param>
+        /// <param name="OldMin"></param>
+        /// <param name="NewMax"></param>
+        /// <param name="NewMin"></param>
+        /// <returns></returns>
         private float ScaleVariable(float datapoint, int OldMax, int OldMin, int NewMax, int NewMin)
         {
             return ((NewMax - NewMin) * (datapoint - OldMin) / (OldMax - OldMin)) + NewMin;
