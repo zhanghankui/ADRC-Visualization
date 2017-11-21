@@ -38,6 +38,7 @@ namespace ADRCVisualization
         private double SetPoint = 0;
         private double StartPoint = 30;
         private double PendulumLength = 4;
+        private double PendulumMass = 2;
         private double WaitTimeForPID = 5;
         private double RunTime = 20;
         private double NoiseFactor = 0;
@@ -48,9 +49,9 @@ namespace ADRCVisualization
         private double kd = 0.2485;//0.18
 
         private double r = 2000;//80
-        private double c = 750;//500
+        private double c = 500;//500
         private double b = 2.875;//0.5   smoothing
-        private double hModifier = 0.0009;//0.005  overshoot
+        private double hModifier = 0.00085;//0.005   overshoot
 
         private double maxOutput = 1000;
 
@@ -71,6 +72,9 @@ namespace ADRCVisualization
 
         private BackgroundWorker backgroundWorker;
 
+        private KalmanFilter pidMaxValue;
+        private KalmanFilter adrcMaxValue;
+
 
         public Form1()
         {
@@ -81,6 +85,9 @@ namespace ADRCVisualization
 
             InitializeFileWriters();
             
+            chart1.ChartAreas[0].AxisY.Maximum = 360;
+            chart1.ChartAreas[0].AxisY.Minimum = -60;
+
             chart3.Series[0].Points.Add(0);
             chart4.Series[0].Points.Add(0);
 
@@ -92,7 +99,10 @@ namespace ADRCVisualization
 
             PIDFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
             ADRCFourierBitmap = new FourierBitmap(710, 350, (float)maxOutput);
-            
+
+            pidMaxValue = new KalmanFilter(0.001);
+            adrcMaxValue = new KalmanFilter(0.001);
+
             backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += new DoWorkEventHandler(BackgroundWorker_CalculateFourierTransforms);
             backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BackgroundWorker_ChangeFourierTransforms);
@@ -123,8 +133,8 @@ namespace ADRCVisualization
 
             this.BeginInvoke((Action)(() =>
             {
-                invertedPendulumPID = new InvertedPendulum(StartPoint, PendulumLength);//start angle, arm length
-                invertedPendulumADRC = new InvertedPendulum(StartPoint, PendulumLength);//start angle, arm length
+                invertedPendulumPID = new InvertedPendulum(StartPoint, PendulumLength, PendulumMass);//start angle, arm length
+                invertedPendulumADRC = new InvertedPendulum(StartPoint, PendulumLength, PendulumMass);//start angle, arm length
                 
                 t1 = new System.Timers.Timer
                 {
@@ -144,7 +154,7 @@ namespace ADRCVisualization
                 
                 t3 = new System.Timers.Timer
                 {
-                    Interval = 150, //In milliseconds here
+                    Interval = 250, //In milliseconds here
                     AutoReset = true //Stops it from repeating
                 };
                 t3.Elapsed += new ElapsedEventHandler(UpdateFourierTransforms);
@@ -320,12 +330,28 @@ namespace ADRCVisualization
             float[] pidAngleFFTW = FourierTransform.CalculateFFTW(PIDAngle.ToArray());
             float[] adrcAngleFFTW = FourierTransform.CalculateFFTW(ADRCAngle.ToArray());
 
-            e.Result = new float[4][] { pidFFTW, adrcFFTW, pidAngleFFTW, adrcAngleFFTW};
+            this.BeginInvoke((Action)(() =>
+            {
+                double pidMax, adrcMax;
+                
+                pidMax = pidMaxValue.Filter((pidFFTW.Max() + Math.Abs(pidFFTW.Min())) / 2);
+                adrcMax = adrcMaxValue.Filter((adrcFFTW.Max() + Math.Abs(adrcFFTW.Min())) / 2);
+
+                pidScale.Text = "PID Scale: " + pidMax;
+                adrcScale.Text = "ADRC Scale: " + adrcMax;
+
+                chart3.ChartAreas[0].AxisY.Maximum = pidMax;
+                chart3.ChartAreas[0].AxisY.Minimum = -pidMax;
+
+                chart4.ChartAreas[0].AxisY.Maximum = adrcMax;
+                chart4.ChartAreas[0].AxisY.Minimum = -adrcMax;
+            }));
+
+            e.Result = new float[4][] { pidFFTW, adrcFFTW, pidAngleFFTW, adrcAngleFFTW };
         }
 
         private void BackgroundWorker_ChangeFourierTransforms(object sender, RunWorkerCompletedEventArgs e)
         {
-            
             foreach (float freq in ((float[][])(e.Result))[0])
             {
                 chart3.Series[0].Points.Add(freq);

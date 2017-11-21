@@ -59,6 +59,7 @@
     <Compile Include="Class Files\ADRC\ExtendedStateObserver.cs" />
     <Compile Include="Class Files\FourierTransforms\FourierBitmap.cs" />
     <Compile Include="Class Files\FourierTransforms\FourierTransform.cs" />
+    <Compile Include="Class Files\KalmanFilter.cs" />
     <Compile Include="Class Files\Solvers\GeneticAlgorithmSolver.cs" />
     <Compile Include="Class Files\InvertedPendulum.cs" />
     <Compile Include="Class Files\MathFunctions.cs" />

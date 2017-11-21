@@ -21,6 +21,7 @@ namespace ADRCVisualization.Class_Files
         private double plantCoefficient;//b0 approximation
         private double precisionModifier;
         private double maxOutput;
+        private double previousPD;
 
         private double output;
 
@@ -53,13 +54,14 @@ namespace ADRCVisualization.Class_Files
             {
                 precisionCoefficient = samplingPeriod * precisionModifier;
                 
-                double temp = pid.Calculate(setpoint, processVariable, samplingPeriod);
+                double pdValue = pid.Calculate(setpoint, processVariable, samplingPeriod);
 
-                Tuple<double, double> test = new Tuple<double, double>(temp, temp);
+                Tuple<double, double> test = new Tuple<double, double>(pdValue, previousPD);
                 Tuple<double, double, double> eso = ExtendedStateObserver.ObserveState(samplingPeriod, output, plantCoefficient, processVariable);//double u, double y, double b0
 
                 output = NonlinearCombiner.Combine(test, plantCoefficient, eso, precisionCoefficient);
 
+                previousPD = pdValue;
                 dateTime = DateTime.Now;
             }
 

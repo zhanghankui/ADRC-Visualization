@@ -18,3 +18,4 @@ C:\Users\steve\source\repos\ADRC-Visualization\ADRCVisualization\obj\Debug\ADRCV
 C:\Users\steve\source\repos\ADRC-Visualization\ADRCVisualization\obj\Debug\ADRCVisualization.csproj.CoreCompileInputs.cache
 C:\Users\steve\source\repos\ADRC-Visualization\ADRCVisualization\obj\Debug\ADRCVisualization.exe
 C:\Users\steve\source\repos\ADRC-Visualization\ADRCVisualization\obj\Debug\ADRCVisualization.pdb
+C:\Users\steve\source\repos\ADRC-Visualization\ADRCVisualization\obj\Debug\ADRCVisualization.csprojResolveAssemblyReference.cache

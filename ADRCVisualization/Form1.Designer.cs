@@ -57,6 +57,8 @@
             this.chart4 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.pidPictureBox = new System.Windows.Forms.PictureBox();
             this.adrcPictureBox = new System.Windows.Forms.PictureBox();
+            this.pidScale = new System.Windows.Forms.Label();
+            this.adrcScale = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
@@ -78,6 +80,8 @@
             // 
             // chart1
             // 
+            chartArea1.AxisX.LabelStyle.Enabled = false;
+            chartArea1.AxisX2.LabelStyle.Enabled = false;
             chartArea1.Name = "ChartArea1";
             this.chart1.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
@@ -138,6 +142,8 @@
             // 
             // chart2
             // 
+            chartArea2.AxisX.LabelStyle.Enabled = false;
+            chartArea2.AxisX2.LabelStyle.Enabled = false;
             chartArea2.Name = "ChartArea1";
             this.chart2.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
@@ -160,6 +166,10 @@
             // 
             // chart3
             // 
+            chartArea3.AxisX.LabelStyle.Enabled = false;
+            chartArea3.AxisX2.LabelStyle.Enabled = false;
+            chartArea3.AxisY.LabelStyle.Enabled = false;
+            chartArea3.AxisY2.LabelStyle.Enabled = false;
             chartArea3.Name = "ChartArea1";
             this.chart3.ChartAreas.Add(chartArea3);
             legend3.Name = "Legend1";
@@ -182,6 +192,11 @@
             // 
             // chart4
             // 
+            chartArea4.AxisX.LabelStyle.Enabled = false;
+            chartArea4.AxisX2.LabelStyle.Enabled = false;
+            chartArea4.AxisY.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.True;
+            chartArea4.AxisY.LabelStyle.Enabled = false;
+            chartArea4.AxisY2.LabelStyle.Enabled = false;
             chartArea4.Name = "ChartArea1";
             this.chart4.ChartAreas.Add(chartArea4);
             legend4.Name = "Legend1";
@@ -222,12 +237,34 @@
             this.adrcPictureBox.TabIndex = 9;
             this.adrcPictureBox.TabStop = false;
             // 
+            // pidScale
+            // 
+            this.pidScale.AutoSize = true;
+            this.pidScale.Location = new System.Drawing.Point(1072, 276);
+            this.pidScale.Name = "pidScale";
+            this.pidScale.Size = new System.Drawing.Size(58, 13);
+            this.pidScale.TabIndex = 10;
+            this.pidScale.Text = "PID Scale:";
+            // 
+            // adrcScale
+            // 
+            this.adrcScale.AutoSize = true;
+            this.adrcScale.Location = new System.Drawing.Point(1071, 543);
+            this.adrcScale.Name = "adrcScale";
+            this.adrcScale.Size = new System.Drawing.Size(70, 13);
+            this.adrcScale.TabIndex = 11;
+            this.adrcScale.Text = "ADRC Scale:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(1457, 918);
+            this.Controls.Add(this.adrcScale);
+            this.Controls.Add(this.pidScale);
+            this.Controls.Add(this.chart4);
+            this.Controls.Add(this.chart3);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -235,8 +272,6 @@
             this.Controls.Add(this.pidPictureBox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.chart1);
-            this.Controls.Add(this.chart4);
-            this.Controls.Add(this.chart3);
             this.Controls.Add(this.chart2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -267,6 +302,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart4;
         private System.Windows.Forms.PictureBox pidPictureBox;
         private System.Windows.Forms.PictureBox adrcPictureBox;
+        private System.Windows.Forms.Label pidScale;
+        private System.Windows.Forms.Label adrcScale;
     }
 }
 

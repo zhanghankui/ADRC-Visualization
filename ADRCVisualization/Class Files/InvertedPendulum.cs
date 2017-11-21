@@ -13,12 +13,14 @@ namespace ADRCVisualization.Class_Files
         private double theta;
         private double radius;
         private double gravity = -9.81;
+        private double mass;
 
-        public InvertedPendulum(double theta, double radius)
+        public InvertedPendulum(double theta, double radius, double mass)
         {
             date = DateTime.Now;
             this.theta = theta * Math.PI / 180;
             this.radius = radius;
+            this.mass = mass;
         }
 
         public double Step(double force)//horizontal force
@@ -63,7 +65,7 @@ namespace ADRCVisualization.Class_Files
                 
                 alpha = Math.Asin(arcDistance / radius);
 
-                velocity = velocity + gravity * Math.Sin(theta) * dT + force * dT;
+                velocity = velocity + mass * gravity * Math.Sin(theta) * dT + force * dT;
 
                 date = DateTime.Now;
 
